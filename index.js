@@ -1,10 +1,11 @@
-const { token, prefix } = require("./config.json");
+const fs = require('fs');
+const config = require("./config.json");
+const { token, prefix, subscriptions } = require("./config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
-const subscribes = [];
-
-function subscription_msg(success, failure) {
+function subscription_msg(success, failure, already) {
+    // generates subscription message to be sent
     function parse(messages) {
         let res = "";
         for (let i = 0; i < messages.length; i++) {
@@ -17,8 +18,11 @@ function subscription_msg(success, failure) {
         return res;
     }
     let msg = "";
-    if (success != 0) {
+    if (success.length != 0) {
         msg += "Subscribed to " + parse(success) + ". ";
+    }
+    if (already.length != 0) {
+        msg += "Already subscribed to " + parse(already) + ". ";
     }
     if (failure.length != 0) {
         if (failure.length === 1) {
@@ -27,7 +31,16 @@ function subscription_msg(success, failure) {
             msg += parse(failure) + " are not valid subscriptions.";
         }
     }
+
     return msg;
+}
+
+function update_subscriptions(subs) {
+    // updates subscription list in config file
+    config.subscriptions = subs;
+    fs.writeFile("./config.json", JSON.stringify(config, null, 2), function writeJSON(err) {
+        if (err) return console.log(err);
+    });
 }
 
 client.once("ready", () => {
@@ -44,16 +57,22 @@ client.on("message", msg => {
         if (cmd === "subscribe") {
             const success = [];
             const failure = [];
+            const already = [];
             for (let i = 0; i < args.length; i++) {
                 // check whether subscription is in fixed database
                 if (args[i]) {
-                    success.push(args[i]);
+                    if (subscriptions.includes(args[i])) {
+                        already.push(args[i]);
+                    } else {
+                        success.push(args[i]);
+                    }
                 } else {
                     failure.push(args[i]);
                 }
             }
-            msg.channel.send(subscription_msg(success, failure));
-            console.log("subscribes" + subscribes);
+            subscriptions.push(...success);
+            update_subscriptions(subscriptions);
+            msg.channel.send(subscription_msg(success, failure, already));
         }
     }
 });
