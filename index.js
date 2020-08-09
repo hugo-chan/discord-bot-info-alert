@@ -4,6 +4,34 @@ const { token, prefix } = require("./config.json");
 let { subscriptions } = require("./config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
+// import { find_key } from "./connectdb.js";
+
+// -------------------------------------
+// in separate json
+const { MongoClient } = require("mongodb");
+const { mongo_user, mongo_pw, mongo_uri } = require("./config.json");
+
+
+async function find_key(key) {
+    const uri = `mongodb+srv://${mongo_user}:${mongo_pw}@${mongo_uri}/test?retryWrites=true&w=majority`;
+
+    const mclient = new MongoClient(uri, {
+        useUnifiedTopology: true,
+    });
+    try {
+        await mclient.connect();
+        const collection = await mclient.db("discord-bot").collection("subscriptions");
+
+        const res = await collection.findOne({ key: key });
+        // console.log(res);
+        return (res == null) ? false : true;
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await mclient.close();
+    }
+}
+// -------------------------------------
 
 function subscription_msg(success, failure, already) {
     // generates subscription message to be sent
@@ -47,7 +75,7 @@ client.once("ready", () => {
     console.log("Bot starting...");
 });
 
-client.on("message", msg => {
+client.on("message", async msg => {
     if (msg.author.bot) return;
     console.log(msg.content);
     if (msg.content.startsWith(prefix)) {
@@ -75,16 +103,22 @@ client.on("message", msg => {
                 const failure = [];
                 const already = [];
                 for (let i = 0; i < args.length; i++) {
-                    if (args[i]) {
-                        if (subscriptions.includes(args[i])) {
-                            already.push(args[i]);
+                    await find_key(args[i]).then(function(is_bool) {
+                        if (is_bool) {
+                            console.log("yes");
+                            if (subscriptions.includes(args[i])) {
+                                already.push(args[i]);
+                            } else {
+                                success.push(args[i]);
+                            }
                         } else {
-                            success.push(args[i]);
+                            console.log("no");
+                            failure.push(args[i]);
                         }
-                    } else {
-                        failure.push(args[i]);
-                    }
+                    });
                 }
+                console.log(success);
+                console.log(failure);
                 subscriptions.push(...success);
                 update_subscriptions(subscriptions);
                 return msg.channel.send(subscription_msg(success, failure, already));
