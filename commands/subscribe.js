@@ -1,70 +1,7 @@
 const config = require("../config.json");
 let { subscriptions } = require("../config.json");
 const fs = require('fs');
-
-// -------------------------------------
-// in separate js
-const { MongoClient } = require("mongodb");
-const { mongo_user, mongo_pw, mongo_uri } = require("../config.json");
-const fetch = require("node-fetch");
-
-
-async function find_key(key) {
-    const uri = `mongodb+srv://${mongo_user}:${mongo_pw}@${mongo_uri}/test?retryWrites=true&w=majority`;
-
-    const mclient = new MongoClient(uri, {
-        useUnifiedTopology: true,
-    });
-    try {
-        await mclient.connect();
-        const collection = await mclient.db("discord-bot").collection("subscriptions");
-
-        const res = await collection.findOne({ key: key });
-        return (res == null) ? false : true;
-    } catch (e) {
-        console.error(e);
-    } finally {
-        await mclient.close();
-    }
-}
-
-async function get_info(subs) {
-    const uri = `mongodb+srv://${mongo_user}:${mongo_pw}@${mongo_uri}/test?retryWrites=true&w=majority`;
-    const mclient = new MongoClient(uri, {
-        useUnifiedTopology: true,
-    });
-    try {
-        await mclient.connect();
-        const collection = await mclient.db("discord-bot").collection("subscriptions");
-
-        const res_info = {};
-
-        for (const sub of subs) {
-            console.log(sub);
-            const query = { key: sub };
-            const options = {
-                projection: { _id: 0, url: 1, extract: 1 },
-            };
-            const res = await collection.findOne(query, options);
-            const url = res.url;
-            const extract = res.extract;
-            console.log(extract);
-            await fetch(url).then((data) => data.json())
-                // .then((data) => res_info.push({ sub: data[0][extract] }));
-                .then((data) => res_info[sub] = data[0][extract]);
-        }
-        console.log(res_info);
-        return res_info;
-
-    } catch (e) {
-        console.error(e);
-    } finally {
-        await mclient.close();
-    }
-}
-
-// get_info(["bitmex:XBTUSD", "bitmex:ETHUSD"]);
-// -------------------------------------
+const { find_key, get_info, db_wrapper } = require("../db.js");
 
 function subscription_msg(success, failure, already) {
     // generates subscription message to be sent
@@ -125,7 +62,7 @@ async function execute(msg, args) {
         const failure = [];
         const already = [];
         for (let i = 0; i < args.length; i++) {
-            await find_key(args[i]).then(in_db => {
+            await db_wrapper(find_key, args[i]).then(in_db => {
                 // if subscription is in db
                 if (in_db) {
                     if (subscriptions.includes(args[i])) {
@@ -140,17 +77,19 @@ async function execute(msg, args) {
         }
         subscriptions.push(...success);
         update_subscriptions(subscriptions);
-        // return msg.channel.send(subscription_msg(success, failure, already));
-        msg.channel.send(subscription_msg(success, failure, already));
-        await get_info(subscriptions).then((res) => JSON.stringify(res))
-            .then((res) => {
-                if (res != "") msg.channel.send(res);
-            });
+        return msg.channel.send(subscription_msg(success, failure, already));
+        // msg.channel.send(subscription_msg(success, failure, already));
+        // await db_wrapper(get_info, subscriptions).then((res) => JSON.stringify(res))
+        //     .then((res) => {
+        //         if (res != "") msg.channel.send(res);
+        //     });
     }
 }
 
+// module's exports
 module.exports = {
     name: "subscribe",
     description: "Subscribe",
+    // value is function to be executed
     execute: ((msg, args) => execute(msg, args)),
 };
