@@ -10,6 +10,7 @@ const client = new Discord.Client();
 // in separate js
 const { MongoClient } = require("mongodb");
 const { mongo_user, mongo_pw, mongo_uri } = require("./config.json");
+const fetch = require("node-fetch");
 
 
 async function find_key(key) {
@@ -30,6 +31,43 @@ async function find_key(key) {
         await mclient.close();
     }
 }
+
+async function get_info(subs) {
+    const uri = `mongodb+srv://${mongo_user}:${mongo_pw}@${mongo_uri}/test?retryWrites=true&w=majority`;
+    const mclient = new MongoClient(uri, {
+        useUnifiedTopology: true,
+    });
+    try {
+        await mclient.connect();
+        const collection = await mclient.db("discord-bot").collection("subscriptions");
+
+        const res_info = {};
+
+        for (const sub of subs) {
+            console.log(sub);
+            const query = { key: sub };
+            const options = {
+                projection: { _id: 0, url: 1, extract: 1 },
+            };
+            const res = await collection.findOne(query, options);
+            const url = res.url;
+            const extract = res.extract;
+            console.log(extract);
+            await fetch(url).then((data) => data.json())
+                // .then((data) => res_info.push({ sub: data[0][extract] }));
+                .then((data) => res_info[sub] = data[0][extract]);
+        }
+        console.log(res_info);
+        return res_info;
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await mclient.close();
+    }
+}
+
+// get_info(["bitmex:XBTUSD", "bitmex:ETHUSD"]);
 // -------------------------------------
 
 function subscription_msg(success, failure, already) {
@@ -118,9 +156,15 @@ client.on("message", async msg => {
                 subscriptions.push(...success);
                 update_subscriptions(subscriptions);
                 return msg.channel.send(subscription_msg(success, failure, already));
+                // msg.channel.send(subscription_msg(success, failure, already));
+                // await get_info(subscriptions).then((res) => JSON.stringify(res))
+                //     .then((res) => {
+                //         if (res != "") msg.channel.send(res);
+                //     });
             }
         }
     }
 });
+
 
 client.login(token);
