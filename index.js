@@ -7,7 +7,7 @@ const client = new Discord.Client();
 // import { find_key } from "./connectdb.js";
 
 // -------------------------------------
-// in separate json
+// in separate js
 const { MongoClient } = require("mongodb");
 const { mongo_user, mongo_pw, mongo_uri } = require("./config.json");
 
@@ -23,7 +23,6 @@ async function find_key(key) {
         const collection = await mclient.db("discord-bot").collection("subscriptions");
 
         const res = await collection.findOne({ key: key });
-        // console.log(res);
         return (res == null) ? false : true;
     } catch (e) {
         console.error(e);
@@ -103,22 +102,19 @@ client.on("message", async msg => {
                 const failure = [];
                 const already = [];
                 for (let i = 0; i < args.length; i++) {
-                    await find_key(args[i]).then(function(is_bool) {
-                        if (is_bool) {
-                            console.log("yes");
+                    await find_key(args[i]).then(in_db => {
+                        // if subscription is in db
+                        if (in_db) {
                             if (subscriptions.includes(args[i])) {
                                 already.push(args[i]);
                             } else {
                                 success.push(args[i]);
                             }
                         } else {
-                            console.log("no");
                             failure.push(args[i]);
                         }
                     });
                 }
-                console.log(success);
-                console.log(failure);
                 subscriptions.push(...success);
                 update_subscriptions(subscriptions);
                 return msg.channel.send(subscription_msg(success, failure, already));
