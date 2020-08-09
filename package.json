@@ -1,0 +1,26 @@
+{
+  "name": "discord-bot-info-alert",
+  "version": "1.0.0",
+  "description": "Discord bot to send information",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hugo-chan/discord-bot-info-alert.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hugo-chan/discord-bot-info-alert/issues"
+  },
+  "homepage": "https://github.com/hugo-chan/discord-bot-info-alert#readme",
+  "dependencies": {
+    "cron": "^1.8.2",
+    "discord.js": "^12.2.0",
+    "fs": "0.0.1-security",
+    "mongodb": "^3.6.0",
+    "node-fetch": "^2.6.0"
+  }
+}
