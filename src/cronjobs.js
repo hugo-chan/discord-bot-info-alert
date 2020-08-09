@@ -18,7 +18,6 @@ function daily_print(client) {
             description += "\nYou have no subscriptions.";
         } else {
             for (const key in dict) {
-                console.log(key, dict[key]);
                 embed.addFields(
                     { name: String(key), value: String(dict[key]), inline: true },
                     );
@@ -30,14 +29,12 @@ function daily_print(client) {
 
     return (
         // create cron job that sends output of get_info every specified time of the day
-        new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
+        // new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
+        new cron.CronJob(`* * * * * *`, () => {
             db_wrapper(get_info, subscriptions).then((res) => JSON.stringify(res))
             .then((res) => {
-                console.log("res", res);
-                if (res != "") {
-                    const msg = generate_embed(res);
-                    client.channels.cache.get(channel_id).send(msg);
-                }
+                const msg = generate_embed(res);
+                client.channels.cache.get(channel_id).send(msg);
             });
         })
     );
