@@ -5,7 +5,7 @@ let { subscriptions } = require("./config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
-function subscription_msg(success, failure, already, clear) {
+function subscription_msg(success, failure, already) {
     // generates subscription message to be sent
     function parse(messages) {
         let res = "";
@@ -17,9 +17,6 @@ function subscription_msg(success, failure, already, clear) {
             }
         }
         return res;
-    }
-    if (clear) {
-        return "Subscriptions cleared.";
     }
     let msg = "";
     if (success.length != 0) {
@@ -35,7 +32,7 @@ function subscription_msg(success, failure, already, clear) {
             msg += parse(failure) + " are not valid subscriptions.";
         }
     }
-    return msg;
+    return (msg ? msg : "<None>");
 }
 
 function update_subscriptions(subs) {
@@ -53,38 +50,45 @@ client.once("ready", () => {
 client.on("message", msg => {
     if (msg.author.bot) return;
     console.log(msg.content);
-
     if (msg.content.startsWith(prefix)) {
         const args = msg.content.slice(prefix.length).trim().split(/ +/);
         const cmd = args.shift().toLowerCase();
         if (cmd === "subscribe") {
-            const success = [];
-            const failure = [];
-            const already = [];
-            let clear = false;
-            for (let i = 0; i < args.length; i++) {
-                // check whether subscription is in fixed database
-                if (args[i] === "CLEAR") {
-                    clear = true;
-                    break;
+            // list subscriptions
+            if (args.includes("LIST")) {
+                if (args.length != 1) {
+                    return msg.channel.send("Please enter only one argument with LIST");
                 }
-                if (args[i]) {
-                    if (subscriptions.includes(args[i])) {
-                        already.push(args[i]);
-                    } else {
-                        success.push(args[i]);
-                    }
-                } else {
-                    failure.push(args[i]);
-                }
+                return msg.channel.send(subscription_msg(subscriptions, [], []));
             }
-            if (clear) {
+            // clear subscriptions
+            if (args.includes("CLEAR")) {
+                if (args.length != 1) {
+                    return msg.channel.send("Please enter only one argument with CLEAR");
+                }
                 subscriptions = [];
+                update_subscriptions(subscriptions);
+                return msg.channel.send("Subscriptions cleared.");
+            // add to subscriptions
             } else {
+                const success = [];
+                const failure = [];
+                const already = [];
+                for (let i = 0; i < args.length; i++) {
+                    if (args[i]) {
+                        if (subscriptions.includes(args[i])) {
+                            already.push(args[i]);
+                        } else {
+                            success.push(args[i]);
+                        }
+                    } else {
+                        failure.push(args[i]);
+                    }
+                }
                 subscriptions.push(...success);
+                update_subscriptions(subscriptions);
+                return msg.channel.send(subscription_msg(success, failure, already));
             }
-            update_subscriptions(subscriptions);
-            msg.channel.send(subscription_msg(success, failure, already, clear));
         }
     }
 });
