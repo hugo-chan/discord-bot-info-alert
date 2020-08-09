@@ -1,10 +1,11 @@
 const fs = require('fs');
 const config = require("./config.json");
-const { token, prefix, subscriptions } = require("./config.json");
+const { token, prefix } = require("./config.json");
+let { subscriptions } = require("./config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
-function subscription_msg(success, failure, already) {
+function subscription_msg(success, failure, already, clear) {
     // generates subscription message to be sent
     function parse(messages) {
         let res = "";
@@ -16,6 +17,9 @@ function subscription_msg(success, failure, already) {
             }
         }
         return res;
+    }
+    if (clear) {
+        return "Subscriptions cleared.";
     }
     let msg = "";
     if (success.length != 0) {
@@ -31,7 +35,6 @@ function subscription_msg(success, failure, already) {
             msg += parse(failure) + " are not valid subscriptions.";
         }
     }
-
     return msg;
 }
 
@@ -44,7 +47,7 @@ function update_subscriptions(subs) {
 }
 
 client.once("ready", () => {
-    console.log("Ready!");
+    console.log("Bot starting...");
 });
 
 client.on("message", msg => {
@@ -58,8 +61,13 @@ client.on("message", msg => {
             const success = [];
             const failure = [];
             const already = [];
+            let clear = false;
             for (let i = 0; i < args.length; i++) {
                 // check whether subscription is in fixed database
+                if (args[i] === "CLEAR") {
+                    clear = true;
+                    break;
+                }
                 if (args[i]) {
                     if (subscriptions.includes(args[i])) {
                         already.push(args[i]);
@@ -70,9 +78,13 @@ client.on("message", msg => {
                     failure.push(args[i]);
                 }
             }
-            subscriptions.push(...success);
+            if (clear) {
+                subscriptions = [];
+            } else {
+                subscriptions.push(...success);
+            }
             update_subscriptions(subscriptions);
-            msg.channel.send(subscription_msg(success, failure, already));
+            msg.channel.send(subscription_msg(success, failure, already, clear));
         }
     }
 });
