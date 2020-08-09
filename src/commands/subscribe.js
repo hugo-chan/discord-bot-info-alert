@@ -1,6 +1,5 @@
 const config = require("../../config.json");
-let { subscriptions } = require("../../config.json");
-const fs = require('fs');
+const fs = require("fs");
 const { find_key, db_wrapper } = require("../db.js");
 
 function subscription_msg(success, failure, already) {
@@ -36,12 +35,13 @@ function subscription_msg(success, failure, already) {
 function update_subscriptions(subs) {
     // updates subscription list in config file
     config.subscriptions = subs;
-    fs.writeFile("./config.json", JSON.stringify(config, null, 2), function writeJSON(err) {
+    fs.writeFile("../config.json", JSON.stringify(config, null, 2), function writeJSON(err) {
         if (err) return console.log(err);
     });
 }
 
 async function execute(msg, args) {
+    let { subscriptions } = require("../../config.json");
     if (args.includes("LIST")) {
         if (args.length != 1) {
             return msg.channel.send("Please enter only one argument with LIST");
