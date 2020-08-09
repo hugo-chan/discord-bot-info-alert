@@ -4,6 +4,7 @@ const { token, prefix } = require("./config.json");
 let { subscriptions } = require("./config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
 // import { find_key } from "./connectdb.js";
 
 // -------------------------------------
@@ -108,16 +109,26 @@ function update_subscriptions(subs) {
     });
 }
 
+const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+for (const file of commandFiles) {
+    const commandExport = require(`./commands/${file}`);
+    client.commmands.set(commandExport.name, commandExport);
+}
+
 client.once("ready", () => {
     console.log("Bot starting...");
 });
 
 client.on("message", async msg => {
     if (msg.author.bot) return;
+
     console.log(msg.content);
+
     if (msg.content.startsWith(prefix)) {
         const args = msg.content.slice(prefix.length).trim().split(/ +/);
         const cmd = args.shift().toLowerCase();
+
+        client.commands.get(cmd).execute(args);
         if (cmd === "subscribe") {
             // list subscriptions
             if (args.includes("LIST")) {
@@ -155,12 +166,12 @@ client.on("message", async msg => {
                 }
                 subscriptions.push(...success);
                 update_subscriptions(subscriptions);
-                return msg.channel.send(subscription_msg(success, failure, already));
-                // msg.channel.send(subscription_msg(success, failure, already));
-                // await get_info(subscriptions).then((res) => JSON.stringify(res))
-                //     .then((res) => {
-                //         if (res != "") msg.channel.send(res);
-                //     });
+                // return msg.channel.send(subscription_msg(success, failure, already));
+                msg.channel.send(subscription_msg(success, failure, already));
+                await get_info(subscriptions).then((res) => JSON.stringify(res))
+                    .then((res) => {
+                        if (res != "") msg.channel.send(res);
+                    });
             }
         }
     }
