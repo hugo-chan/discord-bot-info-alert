@@ -1,5 +1,5 @@
 const cron = require("cron");
-const { channel_id } = require("../config.json");
+const { channel_id, img_link } = require("../config.json");
 const Discord = require('discord.js');
 
 function daily_print(client) {
@@ -10,7 +10,9 @@ function daily_print(client) {
     function generate_embed(dict) {
         const embed = new Discord.MessageEmbed()
             .setColor("#ff99ff")
-            .setTitle("Daily Info");
+            .setTitle("Daily Info test")
+            .setImage(`${img_link}`)
+            .setTimestamp();
 
         dict = JSON.parse(dict);
         let description = `It's ${hour}:${minute}:${second}, here is your daily info:`;
@@ -29,8 +31,8 @@ function daily_print(client) {
 
     return (
         // create cron job that sends output of get_info every specified time of the day
-        // new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
-        new cron.CronJob(`* * * * * *`, () => {
+        new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
+        // new cron.CronJob(`* * * * * *`, () => {
             db_wrapper(get_info, subscriptions).then((res) => JSON.stringify(res))
             .then((res) => {
                 const msg = generate_embed(res);
