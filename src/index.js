@@ -33,7 +33,11 @@ client.on("message", async msg => {
         const args = msg.content.slice(prefix.length).trim().split(/ +/);
         const cmd = args.shift().toLowerCase();
         // execute command using loaded command stored in client
-        client.commands.get(cmd).execute(msg, args);
+        try {
+            client.commands.get(cmd).execute(msg, args);
+        } catch (e) {
+            msg.channel.send("Unknown command.");
+        }
     }
 });
 
