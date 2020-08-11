@@ -42,6 +42,9 @@ function update_subscriptions(subs) {
 
 async function execute(msg, args) {
     let { subscriptions } = require("../../config.json");
+    if (args.length === 0) {
+        return msg.channel.send("Command missing argument.");
+    }
     if (args.includes("LIST")) {
         if (args.length != 1) {
             return msg.channel.send("Please enter only one argument with LIST");
@@ -83,7 +86,7 @@ async function execute(msg, args) {
 
 // module's exports
 module.exports = {
-    name: "subscribe",
+    name: "sub",
     description: "Subscribe",
     // value is function to be executed
     execute: ((msg, args) => execute(msg, args)),

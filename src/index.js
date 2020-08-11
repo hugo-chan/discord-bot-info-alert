@@ -24,6 +24,10 @@ client.on("message", async msg => {
     if (msg.author.bot) return;
     console.log(msg.content);
 
+    // if (msg.content == "") {
+    //     msg.channel.send("");
+    //     return;
+
     if (msg.content.startsWith(prefix)) {
         // extract command and arguments of message
         const args = msg.content.slice(prefix.length).trim().split(/ +/);
@@ -32,5 +36,6 @@ client.on("message", async msg => {
         client.commands.get(cmd).execute(msg, args);
     }
 });
+
 
 client.login(token);
