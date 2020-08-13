@@ -25,7 +25,8 @@ function daily_print(client) {
                     );
                 }
             }
-        embed.setDescription(description);
+        embed.setDescription(description)
+            .setFooter("Have a good day!");
         return embed;
     }
 
