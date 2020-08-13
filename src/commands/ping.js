@@ -5,5 +5,5 @@ function pong(msg, args) {
 
 module.exports = {
     name: "ping",
-    execute: (msg, args) => pong(msg, args),
+    execute: (client, msg, args) => pong(msg, args),
 };

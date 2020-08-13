@@ -34,7 +34,7 @@ client.on("message", async msg => {
         const cmd = args.shift().toLowerCase();
         // execute command using loaded command stored in client
         try {
-            client.commands.get(cmd).execute(msg, args);
+            client.commands.get(cmd).execute(client, msg, args);
         } catch (e) {
             msg.channel.send("Unknown command.");
         }

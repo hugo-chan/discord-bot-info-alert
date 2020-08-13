@@ -45,9 +45,26 @@ async function find_key(collection, args) {
     return (res === null) ? false : true;
 }
 
+async function get_valid_subs(collection, args) {
+    // console.log(collection);
+    const valid_subs = [];
+    await collection.find({ key: { $exists: true } })
+        .toArray(function(err, docs) {
+            if (err) {
+                console.error(err);
+            }
+        for (const doc of docs) {
+            const key = doc.key;
+            valid_subs.push(key);
+        }
+    });
+    return valid_subs;
+}
+
 // module's exports
 module.exports = {
+    db_wrapper,
     find_key,
     get_info,
-    db_wrapper,
+    get_valid_subs,
 };

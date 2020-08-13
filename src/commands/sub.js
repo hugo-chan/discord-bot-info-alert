@@ -1,20 +1,21 @@
 const config = require("../../config.json");
 const fs = require("fs");
-const { find_key, db_wrapper } = require("../db.js");
+const { db_wrapper, find_key, get_valid_subs } = require("../db.js");
+
+function parse(messages) {
+    let res = "";
+    for (let i = 0; i < messages.length; i++) {
+        if (i != messages.length - 1) {
+            res += messages[i] + ", ";
+        } else {
+            res += messages[i];
+        }
+    }
+    return res;
+}
 
 function subscription_msg(success, failure, already) {
     // generates subscription message to be sent
-    function parse(messages) {
-        let res = "";
-        for (let i = 0; i < messages.length; i++) {
-            if (i != messages.length - 1) {
-                res += messages[i] + ", ";
-            } else {
-                res += messages[i];
-            }
-        }
-        return res;
-    }
     let msg = "";
     if (success.length != 0) {
         msg += "Subscribed to " + parse(success) + ". ";
@@ -45,20 +46,27 @@ async function execute(msg, args) {
     if (args.length === 0) {
         return msg.channel.send("Command missing argument.");
     }
-    if (args.includes("LIST")) {
-        if (args.length != 1) {
-            return msg.channel.send("Please enter only one argument with LIST");
+    const check_one_param = (a, keyword) => {
+        if (a.length != 1) {
+            return msg.channel.send(`Please enter only one argument with ${keyword}`);
         }
+    };
+    if (args.includes("LIST")) {
+        check_one_param(args, "LIST");
         return msg.channel.send(subscription_msg(subscriptions, [], []));
     }
     // clear subscriptions
     if (args.includes("CLEAR")) {
-        if (args.length != 1) {
-            return msg.channel.send("Please enter only one argument with CLEAR");
-        }
+        check_one_param(args, "CLEAR");
         subscriptions = [];
         update_subscriptions(subscriptions);
         return msg.channel.send("Subscriptions cleared.");
+    }
+    if (args.includes("VALID")) {
+        check_one_param(args, "VALID");
+        db_wrapper(get_valid_subs, "").then((list) => {
+            return msg.channel.send("Valid subscriptions: " + parse(list)) + ". ";
+        });
     // add to subscriptions
     } else {
         const success = [];
@@ -89,5 +97,5 @@ module.exports = {
     name: "sub",
     description: "Subscribe",
     // value is function to be executed
-    execute: ((msg, args) => execute(msg, args)),
+    execute: ((client, msg, args) => execute(msg, args)),
 };
