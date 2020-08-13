@@ -3,6 +3,7 @@ const { token, prefix } = require("../config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const cronjobs = require("./cronjobs.js");
+const util = require("./util.js");
 
 // create propety to store commands
 client.commands = new Discord.Collection();
@@ -13,6 +14,7 @@ for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
 }
+// console.log(Array.from(client.commands.keys()));
 
 client.once("ready", () => {
     console.log("Bot starting...");
@@ -36,7 +38,10 @@ client.on("message", async msg => {
         try {
             client.commands.get(cmd).execute(client, msg, args);
         } catch (e) {
-            msg.channel.send("Unknown command.");
+            msg.channel.send(
+                "Unknown command. Valid commands: "
+                + util.parse(Array.from(client.commands.keys())) + ". ",
+            );
         }
     }
 });
