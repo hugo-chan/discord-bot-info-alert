@@ -1,11 +1,15 @@
 const { exit } = require("process");
 
 function exits(client, msg) {
-    msg.channel.send("Alerty exits.");
-    setTimeout(() => {
-        client.destroy();
-        exit(0);
-    }, 1000);
+    if (msg.author.id == 294984430311702532) {
+        msg.channel.send("Alerty exits.");
+        setTimeout(() => {
+            client.destroy();
+            exit(0);
+        }, 1000);
+    } else {
+        msg.channel.send("Sneaky.");
+    }
 }
 
 module.exports = {
