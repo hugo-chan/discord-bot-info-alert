@@ -1,6 +1,5 @@
 const { MongoClient } = require("mongodb");
 const { mongo_user, mongo_pw, mongo_uri } = require("../config.json");
-const fetch = require("node-fetch");
 
 async function db_wrapper(func, ...args) {
     // wrapper function for all operations involving mongo db
@@ -21,10 +20,11 @@ async function db_wrapper(func, ...args) {
 }
 
 async function get_info(collection, args) {
+    const fetch = require("node-fetch");
+
     // parses through subscription list, fetches and returns info
     const res_info = {};
     const subs = args[0];
-    console.log("key ", subs);
     for (const sub of subs) {
         const query = { key: sub };
         const options = {
@@ -45,8 +45,7 @@ async function find_key(collection, args) {
     return (res === null) ? false : true;
 }
 
-async function get_valid_subs(collection, args) {
-    // console.log(collection);
+async function get_valid_subs(collection) {
     const valid_subs = [];
     await collection.find({ key: { $exists: true } })
         .toArray(function(err, docs) {

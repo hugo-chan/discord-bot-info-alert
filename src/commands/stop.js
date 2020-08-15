@@ -1,7 +1,8 @@
 const { exit } = require("process");
 
 function exits(client, msg) {
-    if (msg.author.id == 294984430311702532) {
+    const { sudo_user } = require("../../config.json");
+    if (msg.author.id == sudo_user) {
         msg.channel.send("Alerty exits.");
         setTimeout(() => {
             client.destroy();
@@ -14,5 +15,5 @@ function exits(client, msg) {
 
 module.exports = {
     name: "stop",
-    execute: (client, msg, args) => exits(client, msg),
+    execute: (client, msg) => exits(client, msg),
 };

@@ -14,14 +14,15 @@ for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
 }
-// console.log(Array.from(client.commands.keys()));
 
+// upon start
 client.once("ready", () => {
     console.log("Bot starting...");
     // trigger job upon start
     cronjobs.daily_print(client).start();
 });
 
+// upon receiving a message
 client.on("message", async msg => {
     if (msg.author.bot) return;
     console.log(msg.content);
