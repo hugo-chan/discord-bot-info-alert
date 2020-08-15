@@ -15,5 +15,6 @@ function exits(client, msg) {
 
 module.exports = {
     name: "stop",
+    description: "stops the bot -- sudo users only",
     execute: (client, msg) => exits(client, msg),
 };

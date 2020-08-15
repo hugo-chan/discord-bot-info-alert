@@ -39,10 +39,7 @@ client.on("message", async msg => {
         try {
             client.commands.get(cmd).execute(client, msg, args);
         } catch (e) {
-            msg.channel.send(
-                "Unknown command. Valid commands: "
-                + util.parse(Array.from(client.commands.keys())) + ". ",
-            );
+            msg.channel.send("Unknown command. Use /help to view valid commands.");
         }
     }
 });

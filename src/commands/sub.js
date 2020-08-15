@@ -95,7 +95,7 @@ async function execute(msg, args) {
 // module's exports
 module.exports = {
     name: "sub",
-    description: "Subscribe",
+    description: "commands related to your subscription list (LIST, CLEAR, VALID, <name>)",
     // value is function to be executed
     execute: ((client, msg, args) => execute(msg, args)),
 };
