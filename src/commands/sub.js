@@ -5,7 +5,7 @@ const { parse } = require("../util.js");
 
 function subscription_msg(success, failure, already) {
     /**
-     * Generates response when user subscribes to new sources
+     * Generates subscription response
      */
     let msg = "";
     if (success.length != 0) {
@@ -35,6 +35,10 @@ function update_subscriptions(subs) {
 }
 
 async function subscribe(client, msg, args) {
+    /**
+     * Processes subscribe message
+     * Args contain the arguments of /sub command
+     */
     let { subscriptions } = require("../../config.json");
 
     if (args.length === 0) {
@@ -43,11 +47,10 @@ async function subscribe(client, msg, args) {
 
     // helper function for commands that only require one argument
     const check_one_param = (a, keyword) => {
-        if (a.length != 1) {
-            return msg.channel.send(`Please enter only one argument with ${keyword}`);
-        }
+        if (a.length != 1) return msg.channel.send(`Please enter only one argument with ${keyword}`);
     };
 
+    // list current subscriptions
     if (args.includes("LIST")) {
         check_one_param(args, "LIST");
         return msg.channel.send(subscription_msg(subscriptions, [], []));
@@ -59,6 +62,7 @@ async function subscribe(client, msg, args) {
         update_subscriptions(subscriptions);
         return msg.channel.send("Subscriptions cleared.");
     }
+    // list valid subscriptions
     if (args.includes("VALID")) {
         check_one_param(args, "VALID");
         db_wrapper(get_valid_subs, "").then((list) => {
@@ -70,16 +74,17 @@ async function subscribe(client, msg, args) {
         const failure = [];
         const already = [];
         for (let i = 0; i < args.length; i++) {
-            await db_wrapper(find_key, args[i]).then(in_db => {
+            const key = args[i].replace(/[,.]/g, "");
+            await db_wrapper(find_key, key).then(in_db => {
                 // if subscription is in db
                 if (in_db) {
-                    if (subscriptions.includes(args[i])) {
-                        already.push(args[i]);
+                    if (subscriptions.includes(key)) {
+                        already.push(key);
                     } else {
-                        success.push(args[i]);
+                        success.push(key);
                     }
                 } else {
-                    failure.push(args[i]);
+                    failure.push(key);
                 }
             });
         }
