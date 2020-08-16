@@ -55,7 +55,7 @@ $ cd .\discord-bot-info-alert\
 $ npm install
 ```
 
-> Follow the Getting Started procedure
+> Follow the **Getting Started** procedure
 
 > Run the bot
 
