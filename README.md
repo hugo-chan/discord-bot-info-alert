@@ -16,7 +16,7 @@ extract: "close"
 last_val: -1
 last_update: 6858631217693065217
 ```
-Create `config.json` in the main directory, which will contain private/customoizable information needed and imported by the bot. An example is shown below.
+Create `config.json` in the root directory, which will contain private/customizable information needed and imported by the bot. An example is shown below.
 
 ```
 {
