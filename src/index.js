@@ -3,7 +3,6 @@ const { token, prefix } = require("../config.json");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const cronjobs = require("./cronjobs.js");
-const util = require("./util.js");
 
 // create propety to store commands
 client.commands = new Discord.Collection();
