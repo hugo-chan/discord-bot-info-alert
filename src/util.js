@@ -50,7 +50,6 @@ function generate_embed(dict, type) {
     const embed = new Discord.MessageEmbed()
         .setColor("#ff99ff")
         .setTitle(title)
-        .setImage(`${img_link}`)
         .setTimestamp()
         .setFooter("Have a good day!");
 
@@ -66,6 +65,7 @@ function generate_embed(dict, type) {
             }
         }
     embed.setDescription(description);
+    if (img_link) embed.setImage(`${img_link}`);
 
     return embed;
 }
