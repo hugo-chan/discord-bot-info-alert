@@ -3,6 +3,10 @@ const cron = require("cron");
 const { generate_embed } = require("./util.js");
 
 function daily_print(client) {
+    /**
+     * Cron job that gets data for subscription list and sends to channel
+     * every specified time of the day
+     */
     const { db_wrapper, get_info } = require("./db.js");
     const { subscriptions, channel_id, send_time } = require("../config.json");
     const { hour, minute, second } = send_time;

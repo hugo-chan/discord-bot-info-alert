@@ -1,21 +1,12 @@
 const config = require("../../config.json");
 const fs = require("fs");
 const { db_wrapper, find_key, get_valid_subs } = require("../db.js");
-
-function parse(messages) {
-    let res = "";
-    for (let i = 0; i < messages.length; i++) {
-        if (i != messages.length - 1) {
-            res += messages[i] + ", ";
-        } else {
-            res += messages[i];
-        }
-    }
-    return res;
-}
+const { parse } = require("../util.js");
 
 function subscription_msg(success, failure, already) {
-    // generates subscription message to be sent
+    /**
+     * Generates response when user subscribes to new sources
+     */
     let msg = "";
     if (success.length != 0) {
         msg += "Subscribed to " + parse(success) + ". ";
@@ -34,23 +25,29 @@ function subscription_msg(success, failure, already) {
 }
 
 function update_subscriptions(subs) {
-    // updates subscription list in config file
+    /**
+     * Updates subscription list in config file
+     */
     config.subscriptions = subs;
     fs.writeFile("../config.json", JSON.stringify(config, null, 2), function writeJSON(err) {
         if (err) return console.log(err);
     });
 }
 
-async function execute(msg, args) {
+async function subscribe(client, msg, args) {
     let { subscriptions } = require("../../config.json");
+
     if (args.length === 0) {
         return msg.channel.send("Command missing argument.");
     }
+
+    // helper function for commands that only require one argument
     const check_one_param = (a, keyword) => {
         if (a.length != 1) {
             return msg.channel.send(`Please enter only one argument with ${keyword}`);
         }
     };
+
     if (args.includes("LIST")) {
         check_one_param(args, "LIST");
         return msg.channel.send(subscription_msg(subscriptions, [], []));
@@ -95,7 +92,6 @@ async function execute(msg, args) {
 // module's exports
 module.exports = {
     name: "sub",
-    description: "commands related to your subscription list (LIST, CLEAR, VALID, <name>)",
-    // value is function to be executed
-    execute: ((client, msg, args) => execute(msg, args)),
+    description: "commands related to your subscription list (LIST, CLEAR, VALID, <name(s)>)",
+    execute: subscribe,
 };

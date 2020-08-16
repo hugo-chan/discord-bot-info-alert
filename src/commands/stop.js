@@ -2,6 +2,7 @@ const { exit } = require("process");
 
 function exits(client, msg) {
     const { sudo_user } = require("../../config.json");
+    // only sudo users can execute
     if (msg.author.id == sudo_user) {
         msg.channel.send("Alerty exits.");
         setTimeout(() => {
@@ -15,6 +16,6 @@ function exits(client, msg) {
 
 module.exports = {
     name: "stop",
-    description: "stops the bot -- sudo users only",
-    execute: (client, msg) => exits(client, msg),
+    description: "stops the bot, sudo users only",
+    execute: exits,
 };

@@ -34,6 +34,7 @@ client.on("message", async msg => {
         // extract command and arguments of message
         const args = msg.content.slice(prefix.length).trim().split(/ +/);
         const cmd = args.shift().toLowerCase();
+
         // execute command using loaded command stored in client
         try {
             client.commands.get(cmd).execute(client, msg, args);

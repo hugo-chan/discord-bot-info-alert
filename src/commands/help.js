@@ -1,16 +1,16 @@
-function execute(client, msg) {
+const { replace_str_excp_last } = require("../util.js");
+
+function help(client, msg) {
     let retMsg = "Below is the list of valid commands:\n";
-    let i = 0;
     for (const [cmdName, cmd] of client.commands) {
-        if (i++ != 0) retMsg += "\n";
-        console.log("    cmdName", cmdName, "cmd", cmd);
-        retMsg += "    " + cmdName + ": " + cmd.description;
+        retMsg += "    " + cmdName + ": " + cmd.description + "!";
     }
+    retMsg = replace_str_excp_last(retMsg, "!", "\n", true);
     msg.channel.send(retMsg);
 }
 
 module.exports = {
     name: "help",
     description: "lists valid commands",
-    execute: execute,
+    execute: help,
 };
