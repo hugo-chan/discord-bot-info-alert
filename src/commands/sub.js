@@ -77,6 +77,11 @@ async function subscribe(client, msg, args) {
         const already = [];
         for (let i = 0; i < args.length; i++) {
             const key = args[i].replace(/[,.]/g, "");
+            // skip repeated
+            if (
+                success.includes(key) || failure.includes(key) || already.includes(key)
+            ) continue;
+
             await db_wrapper(find_key, key).then(in_db => {
                 // if subscription is in db
                 if (in_db) {
