@@ -8,7 +8,7 @@ const cronjobs = require("./cronjobs.js");
 client.commands = new Discord.Collection();
 
 // load possible commands into client
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+const commandFiles = fs.readdirSync(__dirname + "/commands").filter(file => file.endsWith(".js"));
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);

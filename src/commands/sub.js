@@ -1,5 +1,6 @@
 const config = require("../../config.json");
 const fs = require("fs");
+const path = require("path");
 const { db_wrapper, find_key, get_valid_subs } = require("../db.js");
 const { parse } = require("../util.js");
 
@@ -29,7 +30,8 @@ function update_subscriptions(subs) {
      * Updates subscription list in config file
      */
     config.subscriptions = subs;
-    fs.writeFile("../config.json", JSON.stringify(config, null, 2), function writeJSON(err) {
+    const cfg_path = path.join(__dirname, "../../config.json");
+    fs.writeFile(cfg_path, JSON.stringify(config, null, 2), function writeJSON(err) {
         if (err) return console.log(err);
     });
 }
