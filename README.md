@@ -6,7 +6,35 @@ The information of supported subscriptions (e.g. name, url and endpoint of API, 
 
 ## Getting Started
 
-TO-DO
+Set-up a MongoDB collection containing the subscriptions the bot will support. Documents in the MongoDB collection should follow a format as follows:
+
+```
+key: "bitmex:XBTUSD"
+method: "GET"
+url: "https://www.bitmex.com/api/v1/trade/bucketed?binSize=1d&partial=true&s..."
+extract: "close"
+last_val: -1
+last_update: 6858631217693065217
+```
+Create `config.json` in the root directory, which will contain private/customizable information needed and imported by the bot. An example is shown below.
+
+```
+{
+  "token": "xxx",
+  "prefix": "/",
+  "mongo_user": "hugo",
+  "mongo_pw": "xxx",
+  "mongo_uri": "xxx.mongodb.net",
+  "channel_id": "000",
+  "subscriptions": [],
+  "sudo_user": 000,
+  "send_time": {
+    "hour": "08",
+    "minute": "00",
+    "second": "00"
+  }
+}
+```
 
 ### Prerequisites
 * Node.js v12.0.0 or above
@@ -14,23 +42,26 @@ TO-DO
 * Discord server, account, bot (authorization token)
 
 ### Installing
-
-To-do (config.json)
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+> Clone this repo to your local machine
 
 ```
-Give the example
+$ git clone https://github.com/hugo-chan/discord-bot-info-alert.git
 ```
 
-And repeat
+> Install the project dependencies
 
 ```
-until finished
+$ cd .\discord-bot-info-alert\
+$ npm install
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+> Follow the Getting Started procedure
+
+> Run the bot
+
+```
+$ node .
+```
 
 
 ## Built With
