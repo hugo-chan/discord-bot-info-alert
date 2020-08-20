@@ -34,7 +34,7 @@ function generate_embed(dict, type) {
      * Used for daily info and /get (hence the type argument)
      */
     const Discord = require('discord.js');
-    const { img_link, send_time } = require("../config.json");
+    const { img_links, send_time } = require("../config.json");
     const { hour, minute, second } = send_time;
 
     // produce different embeds for different circumstances
@@ -65,7 +65,10 @@ function generate_embed(dict, type) {
             }
         }
     embed.setDescription(description);
-    if (img_link) embed.setImage(`${img_link}`);
+    if (img_links) {
+        const random_index = Math.floor(Math.random() * img_links.length);
+        embed.setImage(`${img_links[random_index]}`);
+    }
 
     return embed;
 }
