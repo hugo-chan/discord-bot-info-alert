@@ -29,6 +29,10 @@ function update_subscriptions(subs) {
     /**
      * Updates subscription list in config file
      */
+    subs.sort((arg1, arg2) => {
+        if (arg1.toLowerCase() < arg2.toLowerCase()) return -1;
+        return 1;
+    });
     config.subscriptions = subs;
     const cfg_path = path.join(__dirname, "../../config.json");
     fs.writeFile(cfg_path, JSON.stringify(config, null, 2), function writeJSON(err) {

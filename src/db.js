@@ -31,20 +31,17 @@ async function get_info(collection, args) {
     const res_info = {};
     // extract from [] due to ...rest in db_wrapper
     const subs = args[0];
-    for (const sub of subs) {
-        // query and options for searching DB
-        const query = { key: sub };
+    const promises = subs.map(async (_sub) => {
+        const query = { key: _sub };
         const options = {
             projection: { _id: 0, url: 1, extract: 1 },
         };
+        // wait for MongoDB to obtain the document result
         const res = await collection.findOne(query, options);
-        const url = res.url;
-        const extract = res.extract;
-
-        // get from specified data source and extract info
-        await fetch(url).then((data) => data.json())
-            .then((data) => res_info[sub] = data[0][extract]);
-    }
+        return fetch(res.url).then((data) => data.json())
+            .then((data) => res_info[_sub] = data[0][res.extract]);
+    });
+    await Promise.all(promises);
     return res_info;
 }
 

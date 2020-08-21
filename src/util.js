@@ -47,6 +47,7 @@ function generate_embed(dict, type) {
         description = "Here is your immediate info:";
     }
 
+    // initialize embed parameters
     const embed = new Discord.MessageEmbed()
         .setColor("#ff99ff")
         .setTitle(title)
@@ -54,16 +55,35 @@ function generate_embed(dict, type) {
         .setFooter("Have a good day!");
 
     // add info to embed
-    dict = JSON.parse(dict);
     if (Object.keys(dict).length === 0) {
         description += "\nYou have no subscriptions.";
     } else {
-        for (const key in dict) {
-            embed.addFields(
-                { name: String(key), value: String(dict[key]), inline: true },
-                );
+        let label = "";
+        let count = 0;
+
+        // helper fn to fill line of embed with empty fields
+        const fill_embed = (_embed, _count) => {
+            const fill = 3 - (_count % 3);
+            for (let i = 0; i < fill; i++) {
+                _embed.addField('\u200b', '\u200b', true);
+                _count++;
             }
+            return _count;
+        };
+
+        for (const key in dict) {
+            const label_new = key.split(":")[0];
+            if (label_new != label && label != "") {
+                // label different from the last one, fill to EOL
+                count = fill_embed(embed, count);
+            }
+            embed.addField(String(key), String(dict[key]), true);
+            label = label_new;
+            count++;
         }
+        fill_embed(embed, count);
+    }
+
     embed.setDescription(description);
     if (img_links) {
         const random_index = Math.floor(Math.random() * img_links.length);
