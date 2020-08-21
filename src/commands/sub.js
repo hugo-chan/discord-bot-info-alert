@@ -71,14 +71,22 @@ async function subscribe(client, msg, args) {
     // list valid subscriptions
     if (args.includes("VALID")) {
         check_one_param(args, "VALID");
-        db_wrapper(get_valid_subs, "").then((list) => {
-            return msg.channel.send("Valid subscriptions: " + parse(list)) + ". ";
+        await db_wrapper(get_valid_subs, "").then((list) => {
+            msg.channel.send("Valid subscriptions: " + parse(list)) + ". ";
+        });
+        return;
+    }
+    // initialize subscription lists
+    const success = [];
+    const failure = [];
+    const already = [];
+    // subscribe to all
+    if (args.includes("ALL")) {
+        await db_wrapper(get_valid_subs, "").then((list) => {
+            success.push(...list);
         });
     // add to subscriptions
     } else {
-        const success = [];
-        const failure = [];
-        const already = [];
         for (let i = 0; i < args.length; i++) {
             const key = args[i].replace(/[,.]/g, "");
             // skip repeated
@@ -99,10 +107,11 @@ async function subscribe(client, msg, args) {
                 }
             });
         }
-        subscriptions.push(...success);
-        update_subscriptions(subscriptions);
-        return msg.channel.send(subscription_msg(success, failure, already));
     }
+    // execute subscribes
+    subscriptions.push(...success);
+    update_subscriptions(subscriptions);
+    return msg.channel.send(subscription_msg(success, failure, already));
 }
 
 // module's exports

@@ -31,6 +31,7 @@ async function get_info(collection, args) {
     const res_info = {};
     // extract from [] due to ...rest in db_wrapper
     const subs = args[0];
+    // fetch info from sources synchronously using map
     const promises = subs.map(async (_sub) => {
         const query = { key: _sub };
         const options = {
