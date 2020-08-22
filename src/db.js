@@ -28,7 +28,7 @@ async function get_info(collection, args) {
      */
     const fetch = require("node-fetch");
 
-    const res_info = {};
+    const res_info = [];
     // extract from [] due to ...rest in db_wrapper
     const subs = args[0];
     // fetch info from sources synchronously using map
@@ -40,9 +40,16 @@ async function get_info(collection, args) {
         // wait for MongoDB to obtain the document result
         const res = await collection.findOne(query, options);
         return fetch(res.url).then((data) => data.json())
-            .then((data) => res_info[_sub] = data[0][res.extract]);
+            .then((data) => res_info.push({ [_sub]: data[0][res.extract] }));
     });
     await Promise.all(promises);
+    // sort alphabetically by key of dict
+    res_info.sort((dict1, dict2) => {
+        if (
+            Object.keys(dict1)[0].toLowerCase() < Object.keys(dict2)[0].toLowerCase()
+        ) return -1;
+        return 1;
+    });
     return res_info;
 }
 

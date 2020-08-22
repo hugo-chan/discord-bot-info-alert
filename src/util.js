@@ -28,7 +28,7 @@ function replace_str_excp_last(message, old, nw, remove) {
     return ret;
 }
 
-function generate_embed(dict, type) {
+function generate_embed(arr, type) {
     /**
      * Generates and returns a Discord embed message to be sent
      * Used for daily info and /get (hence the type argument)
@@ -55,7 +55,7 @@ function generate_embed(dict, type) {
         .setFooter("Have a good day!");
 
     // add info to embed
-    if (Object.keys(dict).length === 0) {
+    if (arr.length === 0) {
         description += "\nYou have no subscriptions.";
     } else {
         let label = "";
@@ -70,8 +70,9 @@ function generate_embed(dict, type) {
             }
             return _count;
         };
-
-        for (const key in dict) {
+        for (let i = 0; i < arr.length; i++) {
+            const dict = arr[i];
+            const key = Object.keys(dict)[0];
             const label_new = key.split(":")[0];
             if (label_new != label && label != "") {
                 // label different from the last one, fill to EOL

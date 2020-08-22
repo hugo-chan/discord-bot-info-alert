@@ -15,8 +15,7 @@ function daily_print(client) {
         // create cron job that sends output of get_info every specified time of the day
         new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
         // new cron.CronJob(`* * * * * *`, () => {
-            db_wrapper(get_info, subscriptions).then((res) => JSON.stringify(res))
-            .then((res) => {
+            db_wrapper(get_info, subscriptions).then((res) => {
                 const msg = generate_embed(res, "daily");
                 client.channels.cache.get(channel_id).send(msg);
             });
