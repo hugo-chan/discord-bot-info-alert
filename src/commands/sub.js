@@ -78,6 +78,8 @@ async function subscribe(client, msg, args) {
     const already = [];
     // subscribe to all
     if (args.includes("ALL")) {
+        subscriptions = [];
+        update_subscriptions(subscriptions);
         await db_wrapper(get_valid_subs, "").then((list) => {
             success.push(...list);
         });
