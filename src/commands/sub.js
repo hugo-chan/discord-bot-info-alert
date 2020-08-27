@@ -85,26 +85,24 @@ async function subscribe(client, msg, args) {
         });
     // add to subscriptions
     } else {
-        for (let i = 0; i < args.length; i++) {
-            const key = args[i].replace(/[,.]/g, "");
-            // skip repeated
-            if (
-                success.includes(key) || failure.includes(key) || already.includes(key)
-            ) continue;
-
-            await db_wrapper(find_key, key).then(in_db => {
-                // if subscription is in db
-                if (in_db) {
-                    if (subscriptions.includes(key)) {
-                        already.push(key);
+        // remove punctuation and repeated subscriptions
+        const subs = [...new Set(args.map((sub) => sub.replace(/[,.]/g, "")))];
+        // synchronously process each subscription
+        const promises = subs.map((_sub) => {
+            if (subscriptions.includes(_sub)) {
+                already.push(_sub);
+                return;
+            } else {
+                return db_wrapper(find_key, _sub).then(in_db => {
+                    if (in_db) {
+                        success.push(_sub);
                     } else {
-                        success.push(key);
+                        failure.push(_sub);
                     }
-                } else {
-                    failure.push(key);
-                }
-            });
-        }
+                });
+            }
+        });
+        await Promise.all(promises);
     }
     // execute subscribes
     subscriptions.push(...success);
