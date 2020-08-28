@@ -9,10 +9,10 @@ The information of supported subscriptions (e.g. name, url and endpoint of API, 
 Set-up a MongoDB collection containing the subscriptions the bot will support. Documents in the MongoDB collection should follow a format as follows:
 
 ```
-key: "bitmex:XBTUSD"
+key: "NASDAQ:AAPL"
 method: "GET"
-url: "https://www.bitmex.com/api/v1/trade/bucketed?binSize=1d&partial=true&s..."
-extract: "close"
+url: "https://api.tiingo.com/tiingo/daily/aapl/prices?token=cf56139f0374fa36..."
+extract: "adjClose"
 last_val: -1
 last_update: 6858631217693065217
 ```
