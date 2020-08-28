@@ -68,7 +68,7 @@ async function subscribe(client, msg, args) {
     if (args.includes("VALID")) {
         check_one_param(args, "VALID");
         await db_wrapper(get_valid_subs, "").then((list) => {
-            msg.channel.send("Valid subscriptions: " + parse(list)) + ". ";
+            msg.channel.send("Valid subscriptions: " + parse(list) + ". ");
         });
         return;
     }
