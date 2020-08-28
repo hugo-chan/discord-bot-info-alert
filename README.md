@@ -62,7 +62,12 @@ $ npm install
 ```
 $ node .
 ```
+## Examples
+### On Demand Alerts
+<img src="https://raw.githubusercontent.com/hugo-chan/discord-bot-info-alert/master/examples/on_demand.png" alt="on demand alerts" width="500">
 
+### Periodical Alerts
+<img src="https://raw.githubusercontent.com/hugo-chan/discord-bot-info-alert/master/examples/periodic.png" alt="periodical alerts" width="500">
 
 ## Built With
 
