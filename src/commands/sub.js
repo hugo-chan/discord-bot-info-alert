@@ -25,11 +25,11 @@ function subscription_msg(success, failure, already) {
     return (msg ? msg : "<None>");
 }
 
-function update_subscriptions(subs) {
+function update_subscriptions(subs, user_id) {
     /**
      * Updates subscription list in config file
      */
-    config.subscriptions = subs;
+    config.subscriptions[user_id] = subs;
     const cfg_path = path.join(__dirname, "../../config.json");
     fs.writeFile(cfg_path, JSON.stringify(config, null, 2), function writeJSON(err) {
         if (err) return console.log(err);
@@ -42,6 +42,8 @@ async function subscribe(client, msg, args) {
      * Args contain the arguments of /sub command
      */
     let { subscriptions } = require("../../config.json");
+    const user_id = String(msg.author.id);
+    subscriptions = user_id in subscriptions ? subscriptions[user_id] : [];
 
     if (args.length === 0) {
         return msg.channel.send("Command missing argument.");
@@ -61,7 +63,7 @@ async function subscribe(client, msg, args) {
     if (args.includes("CLEAR")) {
         check_one_param(args, "CLEAR");
         subscriptions = [];
-        update_subscriptions(subscriptions);
+        update_subscriptions(subscriptions, user_id);
         return msg.channel.send("Subscriptions cleared.");
     }
     // list valid subscriptions
@@ -79,7 +81,7 @@ async function subscribe(client, msg, args) {
     // subscribe to all
     if (args.includes("ALL")) {
         subscriptions = [];
-        update_subscriptions(subscriptions);
+        update_subscriptions(subscriptions, user_id);
         await db_wrapper(get_valid_subs, "").then((list) => {
             success.push(...list);
         });
@@ -106,7 +108,7 @@ async function subscribe(client, msg, args) {
     }
     // execute subscribes
     subscriptions.push(...success);
-    update_subscriptions(subscriptions);
+    update_subscriptions(subscriptions, user_id);
     return msg.channel.send(subscription_msg(success, failure, already));
 }
 

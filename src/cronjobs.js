@@ -8,14 +8,15 @@ function daily_print(client) {
      * every specified time of the day
      */
     const { db_wrapper, get_info } = require("./db.js");
-    const { subscriptions, channel_id, send_time } = require("../config.json");
+    const { subscriptions, channel_id, send_time, sudo_user } = require("../config.json");
     const { hour, minute, second } = send_time;
 
     return (
         // create cron job that sends output of get_info every specified time of the day
         new cron.CronJob(`${second} ${minute} ${hour} * * *`, () => {
         // new cron.CronJob(`* * * * * *`, () => {
-            db_wrapper(get_info, subscriptions).then((res) => {
+            const sudo_subs = subscriptions[sudo_user];
+            db_wrapper(get_info, sudo_subs).then((res) => {
                 const msg = generate_embed(res, "daily");
                 client.channels.cache.get(channel_id).send(msg);
             });

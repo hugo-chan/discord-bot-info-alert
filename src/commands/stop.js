@@ -3,7 +3,7 @@ const { exit } = require("process");
 function exits(client, msg) {
     const { sudo_user } = require("../../config.json");
     // only sudo users can execute
-    if (msg.author.id == sudo_user) {
+    if (msg.author.id == Number(sudo_user)) {
         msg.channel.send("Alerty exits.");
         setTimeout(() => {
             client.destroy();
