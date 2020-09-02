@@ -26,7 +26,7 @@ Create `config.json` in the root directory, which will contain private/customiza
   "mongo_pw": "xxx",
   "mongo_uri": "xxx.mongodb.net",
   "channel_id": "000",
-  "subscriptions": [],
+  "subscriptions": {},
   "sudo_user": 000,
   "send_time": {
     "hour": "08",
