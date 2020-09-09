@@ -22,26 +22,41 @@ async function db_wrapper(func, ...args) {
     }
 }
 
+function complex_fetch(params) {
+    /**
+     * Responsible for more complicated info retrievals (e.g. involves calculations)
+     * Name of custom functions used to get and calc data is stored in db under
+     * extract and needs to be defined and exported in util_specific.js
+     * Returns proceessed data to be displayed
+     */
+    const utils = require("./util_specific.js");
+    return utils[params.extract](params.urls);
+}
+
 async function get_info(collection, args) {
     /**
      * Fetches info for subscription list and returns info
      */
     const fetch = require("node-fetch");
-
     const res_info = [];
     // extract from [] due to ...rest in db_wrapper
     const subs = args[0];
-    // fetch info from sources synchronously using map
+    // fetch info from sources synchronously using map, generate promises
     const promises = subs.map(async (_sub) => {
         const query = { key: _sub };
         const options = {
-            projection: { _id: 0, url: 1, extract: 1 },
+            projection: { _id: 0, urls: 1, simple: 1, extract: 1 },
         };
         // wait for MongoDB to obtain the document result
         const res = await collection.findOne(query, options);
-        return fetch(res.url).then((data) => data.json())
+        // fetch and process data using specified method
+        if (res.simple) {
+            return fetch(res.urls).then((data) => data.json())
             .then((data) => res_info.push({ [_sub]: data[0][res.extract] }));
+        }
+        return complex_fetch(res).then((data) => res_info.push({ [_sub]: data }));
     });
+    // push all fetched data to res_info dict
     await Promise.all(promises);
     // sort alphabetically by key of dict
     res_info.sort((dict1, dict2) => {
