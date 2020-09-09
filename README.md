@@ -11,7 +11,8 @@ Set-up a MongoDB collection containing the subscriptions the bot will support. D
 ```
 key: "NASDAQ:AAPL"
 method: "GET"
-url: "https://api.tiingo.com/tiingo/daily/aapl/prices?token=cf56139f0374fa36..."
+urls: "https://api.tiingo.com/tiingo/daily/aapl/prices?token=cf56139f0374fa36..."
+simple: true
 extract: "adjClose"
 last_val: -1
 last_update: 6858631217693065217
