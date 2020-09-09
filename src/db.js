@@ -95,10 +95,31 @@ async function get_valid_subs(collection) {
     return valid_subs;
 }
 
+async function get_by_match(collection, args) {
+    /**
+     * Gets all subscriptions for given key
+     */
+    const name = args[0];
+    const valid_subs = [];
+    await collection.find({ key: { $regex: `${name}.*` } })
+        .toArray(function(err, docs) {
+            if (err) {
+                console.error(err);
+            }
+        // add key to valid_subs array
+        for (const doc of docs) {
+            const key = doc.key;
+            valid_subs.push(key);
+        }
+    });
+    return valid_subs;
+}
+
 // module's exports
 module.exports = {
     db_wrapper,
     find_key,
     get_info,
     get_valid_subs,
+    get_by_match,
 };

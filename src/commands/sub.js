@@ -91,6 +91,21 @@ async function subscribe(client, msg, args) {
         const subs = [...new Set(args.map((sub) => sub.replace(/[,.]/g, "")))];
         // synchronously process each subscription
         const promises = subs.map((_sub) => {
+            if (_sub.split(":")[1] == "*") {
+                // if subscription is wildcard (subscribe to all under a certain name)
+                const { get_by_match } = require("../db.js");
+                return db_wrapper(get_by_match, _sub.split(":")[0]).then(ls => {
+                    if (ls.length == 0) failure.push(_sub);
+                    ls.map(s => {
+                        if (subscriptions.includes(s)) {
+                            already.push(s);
+                        } else {
+                            success.push(s);
+                        }
+                    });
+                });
+            }
+            // subscription is not a wildcard
             if (subscriptions.includes(_sub)) {
                 already.push(_sub);
                 return;
