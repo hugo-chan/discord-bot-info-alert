@@ -29,6 +29,7 @@ client.on("message", async msg => {
     // if (msg.content == "") {
     //     msg.channel.send("");
     //     return;
+    // }
 
     if (msg.content.startsWith(prefix)) {
         // extract command and arguments of message
