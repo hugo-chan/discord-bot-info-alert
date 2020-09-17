@@ -17,8 +17,13 @@ for (const file of commandFiles) {
 // upon start
 client.once("ready", () => {
     console.log("Bot starting...");
-    // trigger job upon start
-    cronjobs.daily_print(client).start();
+    // trigger jobs upon start
+    console.log("Starting daily print job.");
+    client.daily_print = cronjobs.daily_print(client);
+    client.daily_print.start();
+    console.log("Starting alert print job.");
+    client.alert_job = cronjobs.alert_print(client);
+    client.alert_job.start();
 });
 
 // upon receiving a message

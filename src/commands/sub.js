@@ -1,8 +1,5 @@
-const config = require("../../config.json");
-const fs = require("fs");
-const path = require("path");
 const { db_wrapper, find_key, get_valid_subs } = require("../db.js");
-const { parse } = require("../util.js");
+const { parse, update_config } = require("../util.js");
 
 function subscription_msg(success, failure, already) {
     /**
@@ -23,17 +20,6 @@ function subscription_msg(success, failure, already) {
         }
     }
     return (msg ? msg : "<None>");
-}
-
-function update_subscriptions(subs, user_id) {
-    /**
-     * Updates subscription list in config file
-     */
-    config.subscriptions[user_id] = subs;
-    const cfg_path = path.join(__dirname, "../../config.json");
-    fs.writeFile(cfg_path, JSON.stringify(config, null, 2), function writeJSON(err) {
-        if (err) return console.log(err);
-    });
 }
 
 async function subscribe(client, msg, args) {
@@ -63,8 +49,10 @@ async function subscribe(client, msg, args) {
     if (args.includes("CLEAR")) {
         check_one_param(args, "CLEAR");
         subscriptions = [];
-        update_subscriptions(subscriptions, user_id);
-        return msg.channel.send("Subscriptions cleared.");
+        await update_config("subscriptions", subscriptions, true, user_id).then(() => {
+            msg.channel.send("Subscriptions cleared.");
+        });
+        return;
     }
     // list valid subscriptions
     if (args.includes("VALID")) {
@@ -81,7 +69,7 @@ async function subscribe(client, msg, args) {
     // subscribe to all
     if (args.includes("ALL")) {
         subscriptions = [];
-        update_subscriptions(subscriptions, user_id);
+        await update_config("subscriptions", subscriptions, true, user_id);
         await db_wrapper(get_valid_subs, "").then((list) => {
             success.push(...list);
         });
@@ -123,7 +111,7 @@ async function subscribe(client, msg, args) {
     }
     // execute subscribes
     subscriptions.push(...success);
-    update_subscriptions(subscriptions, user_id);
+    await update_config("subscriptions", subscriptions, true, user_id);
     return msg.channel.send(subscription_msg(success, failure, already));
 }
 

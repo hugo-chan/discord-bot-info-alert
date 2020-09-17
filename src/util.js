@@ -38,18 +38,24 @@ function generate_embed(arr, type) {
     const { hour, minute, second } = send_time;
 
     // produce different embeds for different circumstances
-    let title, description = "";
+    let title, description, color = "";
     if (type === "daily") {
         title = "Daily Info";
         description = `It's ${hour}:${minute}:${second}, here is your daily info:`;
+        color = "#ff99ff";
     } else if (type == "now") {
         title = "Immediate Info";
         description = "Here is your immediate info:";
+        color = "#f0c800";
+    } else if (type == "alert") {
+        title = "Alert";
+        description = "Values of interest:";
+        color = "#f00000";
     }
 
     // initialize embed parameters
     const embed = new Discord.MessageEmbed()
-        .setColor("#ff99ff")
+        .setColor(color)
         .setTitle(title)
         .setTimestamp()
         .setFooter("Have a good day!");
@@ -94,8 +100,29 @@ function generate_embed(arr, type) {
     return embed;
 }
 
+function update_config(section, content, user_id_required, user_id) {
+    /**
+     * Updates specified section in config file
+     */
+    const config = require("../config.json");
+    const fs = require("fs");
+    const path = require("path");
+
+    if (user_id_required) {
+        config[section][user_id] = content;
+    } else {
+        config[section] = content;
+    }
+    const cfg_path = path.join(__dirname, "../config.json");
+    fs.writeFile(cfg_path, JSON.stringify(config, null, 2), function writeJSON(err) {
+        if (err) return console.log(err);
+    });
+    return Promise.resolve(true);
+}
+
 module.exports = {
     parse,
     generate_embed,
     replace_str_excp_last,
+    update_config,
 };
